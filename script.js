@@ -19,7 +19,7 @@ let copyFeedbackTimer;
 
 function getSelectedSets() {
   const skipAmbiguous = document.querySelector("#exclude-ambiguous").checked;
-  const ambiguousCharacters = /[iloO01]/g;
+  const ambiguousCharacters = /[ilIoO01]/g;
 
   return characterSets
     .filter(({ id }) => document.querySelector(`#${id}`).checked)
@@ -33,11 +33,15 @@ function getSelectedSets() {
 }
 
 function randomIndex(maxExclusive) {
+  if (!window.crypto || typeof window.crypto.getRandomValues !== "function") {
+    throw new Error("Secure password generation is not available in this browser.");
+  }
+
   const limit = 256 - (256 % maxExclusive);
   const byte = new Uint8Array(1);
 
   do {
-    crypto.getRandomValues(byte);
+    window.crypto.getRandomValues(byte);
   } while (byte[0] >= limit);
 
   return byte[0] % maxExclusive;
@@ -95,7 +99,10 @@ function copyWithFallback(value) {
 
   try {
     temporaryInput.select();
-    if (!document.execCommand("copy")) {
+    if (
+      typeof document.execCommand !== "function" ||
+      !document.execCommand("copy")
+    ) {
       throw new Error("Copy is not available in this browser.");
     }
   } finally {
