@@ -15,6 +15,8 @@ const characterSets = [
   { id: "include-symbols", characters: "!@#$%^&*()-_=+[]{};:,.?/" },
 ];
 
+let copyFeedbackTimer;
+
 function getSelectedSets() {
   const skipAmbiguous = document.querySelector("#exclude-ambiguous").checked;
   const ambiguousCharacters = /[iloO01]/g;
@@ -83,6 +85,54 @@ function updateStrength(length, poolSize) {
   strengthText.textContent = labels[level - 1];
 }
 
+function copyWithFallback(value) {
+  const temporaryInput = document.createElement("textarea");
+  temporaryInput.value = value;
+  temporaryInput.setAttribute("readonly", "");
+  temporaryInput.style.position = "fixed";
+  temporaryInput.style.opacity = "0";
+  document.body.append(temporaryInput);
+
+  try {
+    temporaryInput.select();
+    if (!document.execCommand("copy")) {
+      throw new Error("Copy is not available in this browser.");
+    }
+  } finally {
+    temporaryInput.remove();
+  }
+}
+
+async function copyPassword() {
+  const value = passwordOutput.textContent;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(value);
+    } else {
+      copyWithFallback(value);
+    }
+  } catch (error) {
+    if (navigator.clipboard && window.isSecureContext) {
+      copyWithFallback(value);
+    } else {
+      throw error;
+    }
+  }
+
+  clearTimeout(copyFeedbackTimer);
+  copyButton.title = "Copied!";
+  copyButton.setAttribute("aria-label", "Password copied");
+  formMessage.dataset.kind = "success";
+  formMessage.textContent = "Copied to clipboard.";
+  copyFeedbackTimer = setTimeout(() => {
+    copyButton.title = "Copy password";
+    copyButton.setAttribute("aria-label", "Copy password");
+    formMessage.textContent = "";
+    delete formMessage.dataset.kind;
+  }, 2000);
+}
+
 function generatePassword() {
   try {
     const password = createPassword();
@@ -90,8 +140,13 @@ function generatePassword() {
     passwordOutput.classList.remove("is-placeholder");
     copyButton.disabled = false;
     formMessage.textContent = "";
+    delete formMessage.dataset.kind;
+    copyButton.title = "Copy password";
+    copyButton.setAttribute("aria-label", "Copy password");
+    clearTimeout(copyFeedbackTimer);
     updateStrength(password.length, password.poolSize);
   } catch (error) {
+    delete formMessage.dataset.kind;
     formMessage.textContent =
       error instanceof Error
         ? error.message
@@ -104,3 +159,13 @@ lengthSlider.addEventListener("input", () => {
 });
 
 generateButton.addEventListener("click", generatePassword);
+copyButton.addEventListener("click", async () => {
+  try {
+    await copyPassword();
+  } catch (error) {
+    formMessage.textContent =
+      error instanceof Error
+        ? error.message
+        : "Could not copy the password. Please try again.";
+  }
+});
