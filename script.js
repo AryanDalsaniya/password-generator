@@ -4,6 +4,9 @@ const lengthValue = document.querySelector("#length-value");
 const generateButton = document.querySelector("#generate-button");
 const copyButton = document.querySelector("#copy-button");
 const formMessage = document.querySelector("#form-message");
+const strengthTrack = document.querySelector(".strength__track");
+const strengthFill = document.querySelector(".strength__fill");
+const strengthText = document.querySelector("#strength-text");
 
 const characterSets = [
   { id: "include-uppercase", characters: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" },
@@ -11,6 +14,21 @@ const characterSets = [
   { id: "include-numbers", characters: "0123456789" },
   { id: "include-symbols", characters: "!@#$%^&*()-_=+[]{};:,.?/" },
 ];
+
+function getSelectedSets() {
+  const skipAmbiguous = document.querySelector("#exclude-ambiguous").checked;
+  const ambiguousCharacters = /[iloO01]/g;
+
+  return characterSets
+    .filter(({ id }) => document.querySelector(`#${id}`).checked)
+    .map(({ id, characters }) => ({
+      id,
+      characters: skipAmbiguous
+        ? characters.replace(ambiguousCharacters, "")
+        : characters,
+    }))
+    .filter(({ characters }) => characters.length > 0);
+}
 
 function randomIndex(maxExclusive) {
   const limit = 256 - (256 % maxExclusive);
@@ -34,9 +52,7 @@ function shuffle(characters) {
 }
 
 function createPassword() {
-  const selectedSets = characterSets.filter(({ id }) =>
-    document.querySelector(`#${id}`).checked,
-  );
+  const selectedSets = getSelectedSets();
 
   if (selectedSets.length === 0) {
     throw new Error("Choose at least one character type.");
@@ -53,15 +69,28 @@ function createPassword() {
   }
 
   shuffle(password);
-  return password.join("");
+  return { value: password.join(""), poolSize: pool.length, length };
+}
+
+function updateStrength(length, poolSize) {
+  const entropy = length * Math.log2(poolSize);
+  const level = entropy < 35 ? 1 : entropy < 60 ? 2 : entropy < 80 ? 3 : 4;
+  const labels = ["Weak", "Fair", "Good", "Great"];
+
+  strengthTrack.dataset.level = String(level);
+  strengthTrack.setAttribute("aria-valuenow", String(level));
+  strengthFill.style.width = `${level * 25}%`;
+  strengthText.textContent = labels[level - 1];
 }
 
 function generatePassword() {
   try {
-    passwordOutput.textContent = createPassword();
+    const password = createPassword();
+    passwordOutput.textContent = password.value;
     passwordOutput.classList.remove("is-placeholder");
     copyButton.disabled = false;
     formMessage.textContent = "";
+    updateStrength(password.length, password.poolSize);
   } catch (error) {
     formMessage.textContent =
       error instanceof Error
