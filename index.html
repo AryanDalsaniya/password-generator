@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Make a strong, private password in seconds."
+    />
+    <title>Little Lock — Password Generator</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <header class="brand">
+        <a class="brand__name" href="#" aria-label="Little Lock home">
+          <span class="brand__icon" aria-hidden="true">⌑</span>
+          little lock
+        </a>
+        <span class="brand__note">A little more peace of mind.</span>
+      </header>
+
+      <section class="generator" aria-labelledby="page-title">
+        <div class="generator__intro">
+          <p class="eyebrow">PASSWORD GENERATOR</p>
+          <h1 id="page-title">A good password,<br />without the guesswork.</h1>
+          <p class="intro-copy">
+            Make something strong, make it yours, and get on with your day.
+          </p>
+        </div>
+
+        <div class="password-card">
+          <div class="password-card__top">
+            <span>Your new password</span>
+            <span class="private-note">
+              <span class="private-note__dot" aria-hidden="true"></span>
+              Made on this device
+            </span>
+          </div>
+          <div class="password-output">
+            <output
+              id="password-output"
+              class="password-output__value"
+              aria-live="polite"
+              aria-label="Generated password"
+            >Click generate to begin</output>
+            <button
+              id="copy-button"
+              class="copy-button"
+              type="button"
+              aria-label="Copy password"
+              title="Copy password"
+              disabled
+            >
+              <span aria-hidden="true">⧉</span>
+            </button>
+          </div>
+          <div class="strength">
+            <div class="strength__label">
+              <span>Password strength</span>
+              <span id="strength-text">—</span>
+            </div>
+            <div
+              class="strength__track"
+              role="meter"
+              aria-label="Password strength"
+              aria-valuemin="0"
+              aria-valuemax="4"
+              aria-valuenow="0"
+            >
+              <span class="strength__fill"></span>
+            </div>
+          </div>
+        </div>
+
+        <section class="settings" aria-labelledby="settings-title">
+          <div class="settings__heading">
+            <h2 id="settings-title">Make it your own</h2>
+            <span>Choose what goes in</span>
+          </div>
+          <div class="length-setting">
+            <label for="length-slider">Password length</label>
+            <output id="length-value" for="length-slider">18</output>
+            <input
+              id="length-slider"
+              type="range"
+              min="8"
+              max="64"
+              value="18"
+            />
+            <div class="range-labels" aria-hidden="true">
+              <span>8 characters</span>
+              <span>64 characters</span>
+            </div>
+          </div>
+          <fieldset class="character-options">
+            <legend>Include these characters</legend>
+            <label class="option">
+              <input id="include-uppercase" type="checkbox" checked />
+              <span class="option__check" aria-hidden="true"></span>
+              <span class="option__text">Uppercase <span>A–Z</span></span>
+            </label>
+            <label class="option">
+              <input id="include-lowercase" type="checkbox" checked />
+              <span class="option__check" aria-hidden="true"></span>
+              <span class="option__text">Lowercase <span>a–z</span></span>
+            </label>
+            <label class="option">
+              <input id="include-numbers" type="checkbox" checked />
+              <span class="option__check" aria-hidden="true"></span>
+              <span class="option__text">Numbers <span>0–9</span></span>
+            </label>
+            <label class="option">
+              <input id="include-symbols" type="checkbox" />
+              <span class="option__check" aria-hidden="true"></span>
+              <span class="option__text">Symbols <span>!@#$</span></span>
+            </label>
+          </fieldset>
+          <label class="option option--simple">
+            <input id="exclude-ambiguous" type="checkbox" />
+            <span class="option__check" aria-hidden="true"></span>
+            <span class="option__text">
+              Skip look-alike characters <span>like l, 1, O and 0</span>
+            </span>
+          </label>
+          <p id="form-message" class="form-message" role="status"></p>
+          <button id="generate-button" class="generate-button" type="button">
+            <span aria-hidden="true">↻</span>
+            Generate password
+          </button>
+        </section>
+
+        <p class="privacy-note">
+          Your password is generated in your browser and never sent anywhere.
+        </p>
+      </section>
+
+      <footer class="page-footer">
+        <span>Simple tools for a safer little corner of the internet.</span>
+        <span>Take care of your keys.</span>
+      </footer>
+    </main>
+  </body>
+</html>
